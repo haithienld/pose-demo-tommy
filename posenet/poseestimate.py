@@ -420,7 +420,7 @@ def append_objs_to_img(cv2_im, objs, labels):
         x0, y0, x1, y1 = int(x0*width), int(y0*height), int(x1*width), int(y1*height)
         percent = int(100 * obj.score)
         label = '{}% {}'.format(percent, labels.get(obj.label_id, obj.label_id))
-        if(labels.get(obj.label_id, obj.label_id)=='person'):
+        if (labels.get(obj.label_id, obj.label_id)=='person'):
             cv2_im = cv2.rectangle(cv2_im, (x0, y0), (x1, y1), (0, 255, 0), 2)
             cv2_im = cv2.putText(cv2_im, label, (x0, y0+30),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
