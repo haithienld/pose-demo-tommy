@@ -91,14 +91,13 @@ def draw_pose(cv2_im, cv2_sodidi, pose, numobject, src_size, color='yellow', thr
     lengleg= 86
     lengface = 30
     #=======================================================
-    for label, keypoint in pose.keypoints.items():        
+    for label, keypoint in pose.keypoints.items():
         if keypoint.score < threshold: continue
         # Offset and scale to source coordinate space.
         kp_y = int((keypoint.yx[0] - box_y) * scale_y)
         kp_x = int((keypoint.yx[1] - box_x) * scale_x)
         cv2_im = cv2.putText(cv2_im, str(numobject),(kp_x + 1, kp_y + 1), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
         xys[label] = (numobject,kp_x, kp_y)
-        
         cv2.circle(cv2_im,(int(kp_x),int(kp_y)),5,(0,255,255),-1)
 
     #draw pose in 2d plane========================
@@ -109,10 +108,9 @@ def draw_pose(cv2_im, cv2_sodidi, pose, numobject, src_size, color='yellow', thr
         if a in xys:
             _,x1,y1 = xys[a]
             pts_in = np.array([[x1, y1]], dtype='float32')
-        
         else:
             for b in KNEECHECK:
-                if b in xys: 
+                if b in xys:
                     checkknee = True
                     knee = xys[b]
             for c in HIPCHECK:
@@ -129,24 +127,24 @@ def draw_pose(cv2_im, cv2_sodidi, pose, numobject, src_size, color='yellow', thr
                     head = xys[e]
             if checkknee == True and checkhip == True:
                 _,x1,y1 = knee
-                _,x2,y2 = hip 
+                _,x2,y2 = hip
                 leeeng =  check_distance(x1,y1,x2,y2)
                 pts_in = np.array([[x1, y1 + leeeng/2]], dtype='float32')
                 break
             if checkhip == True and checkshoulder == True:
                 _,x1,y1 = shoulder
-                _,x2,y2 = hip 
+                _,x2,y2 = hip
                 leeeng =  check_distance(x1,y1,x2,y2)
                 pts_in = np.array([[x2, y2 + lengleg*leeeng/lengbackbone]], dtype='float32')
                 break
             if checkhead == True and checkshoulder == True:
                 _,x1,y1 = shoulder
-                _,x2,y2 = head 
+                _,x2,y2 = head
                 leeeng =  check_distance(x1,y1,x2,y2)
-                pts_in = np.array([[x1, y1 + (lengleg+lengbackbone)*leeeng/lengface]], dtype='float32')    
+                pts_in = np.array([[x1, y1 + (lengleg+lengbackbone)*leeeng/lengface]], dtype='float32')
                 break
-        
-    pts_in = np.array([pts_in])        
+
+    pts_in = np.array([pts_in])
     pts_out = mapcamto2dplane(pts_in)
     #print(len(pts_out))
     #print(pts_out[0][0,0])
@@ -155,7 +153,7 @@ def draw_pose(cv2_im, cv2_sodidi, pose, numobject, src_size, color='yellow', thr
     #cv2_sodidi = cv2.circle(cv2_sodidi,(int(pts_out[0][0,0]),int(pts_out[0][0,1])),5,(0,255,255),-1)
         #=============================================
     return pts_sodidi, xys
-    
+
 
     '''
     for a, b in EDGES:
@@ -273,23 +271,22 @@ def main():
             break
         cv2_im = frame
 
-        
         cv2_im_rgb = cv2.cvtColor(cv2_im, cv2.COLOR_BGR2RGB)
         pil_im = Image.fromarray(cv2_im_rgb)
         #declare new window for show pose in 2d plane========================
         h_cap, w_cap, _ = cv2_im.shape
         cv2_sodidi = np.zeros((h_cap,w_cap,3), np.uint8)
         #======================================pose processing=================================
-        
+
         poses, inference_time = engine.DetectPosesInImage(np.uint8(pil_im.resize((641, 481), Image.NEAREST)))
         #print('Posese is',poses)
-    
+
         n = 0
         sum_process_time = 0
         sum_inference_time = 0
         ctr = 0
         fps_counter  = avg_fps_counter(30)
-        
+
         input_shape = engine.get_input_tensor_shape()
 
         inference_size = (input_shape[2], input_shape[1])
@@ -298,7 +295,7 @@ def main():
         #print('Shape is',input_shape)
         #print('inference size is:',inference_size)
         start_time = time.monotonic()
-        
+
         end_time = time.monotonic()
         n += 1
         sum_process_time += 1000 * (end_time - start_time)
@@ -308,7 +305,7 @@ def main():
         text_line = 'PoseNet: %.1fms (%.2f fps) TrueFPS: %.2f' % (
             avg_inference_time, 1000 / avg_inference_time, next(fps_counter)
         )
-        
+
         shadow_text(cv2_im, 10, 20, text_line)
         numobject = 0
         xys={}
@@ -428,7 +425,7 @@ def append_objs_to_img(cv2_im, objs, labels):
             cv2_im = cv2.putText(cv2_im, label, (x0, y0+30),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
     return cv2_im
-    
+
     '''
     height, width, channels = cv2_im.shape
 
