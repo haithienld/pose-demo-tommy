@@ -397,7 +397,7 @@ def main():
                                 cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
             else:
                 cv2.line(cv2_im,(ax, ay), (bx, by),(0,0,255))
-                cv2_im = cv2.putText(cv2_im, 'ALERT', (int(ax+ay/2),int(bx+by/2)),
+                cv2_im = cv2.putText(cv2_im, 'OKAY', (int(ax+ay/2),int(bx+by/2)),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
         #==============================================================================================    
         #cv2_im = append_objs_to_img(cv2_im, objs, labels)
