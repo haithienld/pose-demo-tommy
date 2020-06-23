@@ -370,13 +370,21 @@ def main():
                 distance = check_distance(x1,y1,x2,y2)
                 print('distance',distance)
                 if distance > 100:
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x1),int(y1)),5,(0,0,255),-1)
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x2),int(y2)),5,(0,0,255),-1)
+                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x1),int(y1)),15,(0,0,255),-1)
+                    cv2_im = cv2.putText(cv2_sodidi, 'OKAY', (int(x1),int(y1)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
+                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x2),int(y2)),15,(0,0,255),-1)
+                    cv2_im = cv2.putText(cv2_sodidi, 'OKAY', (int(x2),int(y2)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
                     listwarning.append(i)
                     listwarning.append(j)
                 else:   
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x1),int(y1)),5,(255,0,0),-1)
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x2),int(y2)),5,(255,0,0),-1)
+                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x1),int(y1)),15,(255,0,0),-1)
+                    cv2_im = cv2.putText(cv2_sodidi, 'Alert', (int(x1),int(y1)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
+                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x2),int(y2)),15,(255,0,0),-1)
+                    cv2_im = cv2.putText(cv2_sodidi, 'Alert', (int(x2),int(y2)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
         print('listwarning',listwarning)
         for a, b in EDGES:
             if a not in xys or b not in xys: continue
