@@ -370,20 +370,20 @@ def main():
                 distance = check_distance(x1,y1,x2,y2)
                 print('distance',distance)
                 if distance > 100:
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x1),int(y1)),15,(0,0,255),-1)
-                    cv2_im = cv2.putText(cv2_sodidi, 'OKAY', (int(x1),int(y1)),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x2),int(y2)),15,(0,0,255),-1)
-                    cv2_im = cv2.putText(cv2_sodidi, 'OKAY', (int(x2),int(y2)),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
+                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x1),int(y1)),5,(0,0,255),-1)
+                    cv2_sodidi = cv2.putText(cv2_sodidi, 'OKAY', (int(x1),int(y1)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x2),int(y2)),5,(0,0,255),-1)
+                    cv2_sodidi = cv2.putText(cv2_sodidi, 'OKAY', (int(x2),int(y2)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
                     listwarning.append(i)
                     listwarning.append(j)
                 else:   
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x1),int(y1)),15,(255,0,0),-1)
-                    cv2_im = cv2.putText(cv2_sodidi, 'Alert', (int(x1),int(y1)),
+                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x1),int(y1)),5,(255,0,0),-1)
+                    cv2_sodidi = cv2.putText(cv2_sodidi, 'ALERT', (int(x1),int(y1)),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x2),int(y2)),15,(255,0,0),-1)
-                    cv2_im = cv2.putText(cv2_sodidi, 'Alert', (int(x2),int(y2)),
+                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x2),int(y2)),5,(255,0,0),-1)
+                    cv2_sodidi = cv2.putText(cv2_sodidi, 'ALERT', (int(x2),int(y2)),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
         print('listwarning',listwarning)
         for a, b in EDGES:
@@ -392,9 +392,13 @@ def main():
             num,bx, by = xys[b]
             if num in listwarning:
             #print(numobject,a,xys[a],b,xys[b])
-                cv2.line(cv2_im,(ax, ay), (bx, by),(0,0,255))
-            else:
                 cv2.line(cv2_im,(ax, ay), (bx, by),(255,0,0))
+                cv2_im = cv2.putText(cv2_im, 'ALERT', (int(ax+ay/2),int(bx+by/2)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
+            else:
+                cv2.line(cv2_im,(ax, ay), (bx, by),(0,0,255))
+                cv2_im = cv2.putText(cv2_im, 'ALERT', (int(ax+ay/2),int(bx+by/2)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
         #==============================================================================================    
         #cv2_im = append_objs_to_img(cv2_im, objs, labels)
 
