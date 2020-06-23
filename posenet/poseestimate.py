@@ -264,8 +264,10 @@ def main():
     #interpreter2.allocate_tensors()
     engine2 = DetectionEngine('../all_models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite')
     labels2 = load_labels('../all_models/coco_labels.txt')
-    cap = cv2.VideoCapture(args.camera_idx)
-    while cap.isOpened():
+    #cap = cv2.VideoCapture(args.camera_idx)
+    cap = cv2.VideoCapture('test.mp4')
+    #while cap.isOpened():
+    while cv2.waitKey(1)<0:
         ret, frame = cap.read()
         if not ret:
             break
