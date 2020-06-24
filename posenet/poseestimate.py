@@ -166,9 +166,9 @@ def draw_pose(cv2_im, cv2_sodidi, pose, numobject, src_size, color='yellow', thr
 
 def mapcamto2dplane(pts_in):
     # provide points from image 1
-    pts_src = np.array([[154, 174], [702, 349], [702, 572],[1, 572], [1, 191]])
+    pts_src = np.array([[7, 476], [6, 185], [635, 138],[638, 477], [1, 191]])
     # corresponding points from image 2 (i.e. (154, 174) matches (212, 80))
-    pts_dst = np.array([[154, 174], [702, 349], [702, 572],[1, 572], [1, 191]])#np.array([[212, 80],[489, 80],[505, 180],[367, 235], [144,153]])
+    pts_dst = np.array([[7, 476], [9, 8], [636, 8],[638, 477], [1, 191]])#np.array([[212, 80],[489, 80],[505, 180],[367, 235], [144,153]])
 
     # calculate matrix H
     h, status = cv2.findHomography(pts_src, pts_dst)
@@ -232,6 +232,14 @@ def get_output(interpreter, score_threshold, top_k, image_scale=1.0):
 
     return [make(i) for i in range(top_k) if scores[i] >= score_threshold]
 
+#===GET POSITION TO MAPPING BETWEEN 2 WINDOW================
+posList=[]
+def onMouse(event, x,y, flags, param):
+    global posList
+    if event == cv2.EVENT_LBUTTONDOWN:
+        posList.append((x,y))
+
+#===========================================================
 def main():
     default_model_dir = '../all_models'
     default_model = 'posenet/posenet_mobilenet_v1_075_481_641_quant_decoder_edgetpu.tflite'
@@ -346,9 +354,9 @@ def main():
             #print(xys,coor_ave)kghkkgkgkgerg.hbjbbsbdbs
         pts_sodidi_arr = np.array([pts_sodidi_arr])
         v2 = [b for a in pts_sodidi_arr for b in a]
-        print(v2)
-        print(xys)
-        print(numobject)
+        #print(v2)
+        #print(xys)
+        #print(numobject)
         
         #leng = coor_ave.length
         #print(leng)
@@ -360,7 +368,10 @@ def main():
         #for a in pts_sodidi_arr:
         #    for b in a:
         #        print(b[0])
-        
+        if len(v2) == 1:
+            a,x1,y1 = v2[0]
+            cv2.putText(cv2_sodidi,'OKAY',(int(x1),int(y1)),cv2.FONT_HERSHEY_SIMPLEX,1.0,(255,255,0),2)
+
         for i in range(0,len(v2)):
             a,x1,y1 = v2[i]
             for j in range(1,len(v2)):
@@ -368,37 +379,31 @@ def main():
                     break
                 b,x2,y2 = v2[j]
                 distance = check_distance(x1,y1,x2,y2)
-                print('distance',distance)
-                if distance > 100:
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x1),int(y1)),5,(0,0,255),-1)
-                    cv2_sodidi = cv2.putText(cv2_sodidi, 'OKAY', (int(x1),int(y1)),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x2),int(y2)),5,(0,0,255),-1)
-                    cv2_sodidi = cv2.putText(cv2_sodidi, 'OKAY', (int(x2),int(y2)),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+                #print('distance',distance)
+                if distance > 200:
+                    cv2.circle(cv2_sodidi,(int(x1),int(y1)),5,(0,0,255),-1)
+                    cv2.putText(cv2_sodidi, 'OKAY', (int(x1),int(y1)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0,0), 2)
+                    cv2.circle(cv2_sodidi,(int(x2),int(y2)),5,(0,0,255),-1)
+                    cv2.putText(cv2_sodidi, 'OKAY', (int(x2),int(y2)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0,0), 2)
                     listwarning.append(i)
                     listwarning.append(j)
                 else:   
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x1),int(y1)),5,(255,0,0),-1)
-                    cv2_sodidi = cv2.putText(cv2_sodidi, 'ALERT', (int(x1),int(y1)),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
-                    cv2_sodidi = cv2.circle(cv2_sodidi,(int(x2),int(y2)),5,(255,0,0),-1)
-                    cv2_sodidi = cv2.putText(cv2_sodidi, 'ALERT', (int(x2),int(y2)),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
-        print('listwarning',listwarning)
+                    cv2.circle(cv2_sodidi,(int(x1),int(y1)),5,(0,0,255),-1)
+                    cv2.putText(cv2_sodidi, 'ALERT', (int(x1),int(y1)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0,255), 2)
+                    cv2.circle(cv2_sodidi,(int(x2),int(y2)),5,(255,0,0),-1)
+                    cv2.putText(cv2_sodidi, 'ALERT', (int(x2),int(y2)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+        #print('listwarning',listwarning)
         for a, b in EDGES:
             if a not in xys or b not in xys: continue
             num,ax, ay = xys[a]
             num,bx, by = xys[b]
-            if num in listwarning:
+            if num in listwarning or len(listwarning) == 1:
             #print(numobject,a,xys[a],b,xys[b])
-                cv2.line(cv2_im,(ax, ay), (bx, by),(255,0,0))
-                cv2_im = cv2.putText(cv2_im, 'ALERT', (int(ax+ay/2),int(bx+by/2)),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
-            else:
                 cv2.line(cv2_im,(ax, ay), (bx, by),(0,0,255))
-                cv2_im = cv2.putText(cv2_im, 'OKAY', (int(ax+ay/2),int(bx+by/2)),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+                #cv2.putText(cv2_im, 'OKAY', (int(ax+ay/2),int(bx+by/2)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0,0), 2)
+            else:
+                cv2.line(cv2_im,(ax, ay), (bx, by),(255,0,0))
+                #cv2.putText(cv2_im, 'ALERT', (int(ax+ay/2),int(bx+by/2)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0,255), 2)
         #==============================================================================================    
         #cv2_im = append_objs_to_img(cv2_im, objs, labels)
 
@@ -411,13 +416,16 @@ def main():
                                   keep_aspect_ratio=True,
                                   relative_coord=True,
                                   top_k=3)
-                                
 
         cv2_im = append_objs_to_img(cv2_im, objs, labels2)
-       
+
         cv2.imshow('frame', cv2_im)
         cv2.imshow('1', cv2_sodidi)
-        
+        #===========print mouse pos=====================
+        cv2.setMouseCallback('frame',onMouse)
+        posNp=np.array(posList)
+        print(posNp)
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
