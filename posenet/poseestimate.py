@@ -29,6 +29,9 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+import base64
+import cv2
+import zmq
 
 import time
 import svgwrite
@@ -36,6 +39,11 @@ import gstreamer
 from pose_engine import PoseEngine
 import tflite_runtime.interpreter as tflite
 
+#===========streamming======================
+context = zmq.Context()
+footage_socket = context.socket(zmq.PUB)
+footage_socket.connect('tcp://192.168.100.76:4664') 
+#===========================================
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
 
 #==============================
@@ -425,7 +433,13 @@ def main():
         cv2.setMouseCallback('frame',onMouse)
         posNp=np.array(posList)
         print(posNp)
-
+        #============streamming to server==============
+        img = np.hstack((cv2_im, cv2_sodidi))
+        #thay frame = img
+        encoded, buffer = cv2.imencode('.jpg', img)
+        jpg_as_text = base64.b64encode(buffer)
+        footage_socket.send(jpg_as_text)
+        #=============================================
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
