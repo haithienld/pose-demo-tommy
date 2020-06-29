@@ -42,7 +42,7 @@ import tflite_runtime.interpreter as tflite
 #===========streamming======================
 context = zmq.Context()
 footage_socket = context.socket(zmq.PUB)
-footage_socket.connect('tcp://192.168.100.76:4664') 
+footage_socket.connect('tcp://192.168..58:4664') 
 #===========================================
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
 
