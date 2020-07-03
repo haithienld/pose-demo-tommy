@@ -42,7 +42,7 @@ import tflite_runtime.interpreter as tflite
 #===========streamming======================
 context = zmq.Context()
 footage_socket = context.socket(zmq.PUB)
-footage_socket.connect('tcp://192.168..58:4664') 
+footage_socket.connect('tcp://147.46.123.186:4664') 
 #===========================================
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
 
@@ -259,7 +259,7 @@ def main():
                         default=os.path.join(default_model_dir, default_labels))
     parser.add_argument('--top_k', type=int, default=1,
                         help='number of categories with highest score to display')
-    parser.add_argument('--camera_idx', type=str, help='Index of which video source to use. ', default = 0)
+    parser.add_argument('--camera_idx', type=str, help='Index of which video source to use. ', default = 1)
     parser.add_argument('--threshold', type=float, default=0.5,
                         help='classifier score threshold')
     args = parser.parse_args()
