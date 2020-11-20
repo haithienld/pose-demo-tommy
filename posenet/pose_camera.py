@@ -22,6 +22,7 @@ import numpy as np
 from PIL import Image
 import svgwrite
 import gstreamer
+import os
 
 from pose_engine import PoseEngine
 
@@ -88,32 +89,26 @@ def avg_fps_counter(window_size):
         yield len(window) / sum(window)
 
 def run(inf_callback, render_callback):
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    default_model_dir = '../all_models'
+    default_model = 'posenet/posenet_mobilenet_v1_075_481_641_quant_decoder_edgetpu.tflite'
+    default_labels = 'hand_label.txt'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model', help='.tflite model path',
+                        default=os.path.join(default_model_dir,default_model))
     parser.add_argument('--mirror', help='flip video horizontally', action='store_true')
-    parser.add_argument('--model', help='.tflite model path.', required=False)
-    parser.add_argument('--res', help='Resolution', default='640x480',
-                        choices=['480x360', '640x480', '1280x720'])
+    parser.add_argument('--labels', help='label file path',
+                        default=os.path.join(default_model_dir, default_labels))
+    parser.add_argument('--top_k', type=int, default=1,
+                        help='number of categories with highest score to display')
+    parser.add_argument('--camera_idx', type=str, help='Index of which video source to use. ', default = 0)
+    parser.add_argument('--threshold', type=float, default=0.5,
+                        help='classifier score threshold')
     parser.add_argument('--videosrc', help='Which video source to use', default='/dev/video0')
     parser.add_argument('--h264', help='Use video/x-h264 input', action='store_true')
     parser.add_argument('--jpeg', help='Use image/jpeg input', action='store_true')
     args = parser.parse_args()
-
-    default_model = 'models/mobilenet/posenet_mobilenet_v1_075_%d_%d_quant_decoder_edgetpu.tflite'
-    if args.res == '480x360':
-        src_size = (640, 480)
-        appsink_size = (480, 360)
-        model = args.model or default_model % (353, 481)
-    elif args.res == '640x480':
-        src_size = (640, 480)
-        appsink_size = (640, 480)
-        model = args.model or default_model % (481, 641)
-    elif args.res == '1280x720':
-        src_size = (1280, 720)
-        appsink_size = (1280, 720)
-        model = args.model or default_model % (721, 1281)
-
-    print('Loading model: ', model)
-    engine = PoseEngine(model)
+    src_size = (640, 480)
+    engine = PoseEngine(args.model)
     input_shape = engine.get_input_tensor_shape()
     inference_size = (input_shape[2], input_shape[1])
 

@@ -1,3 +1,4 @@
+
 # Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,7 +105,7 @@ def draw_pose(cv2_im, cv2_sodidi, pose, numobject, src_size, color='yellow', thr
         # Offset and scale to source coordinate space.
         kp_y = int((keypoint.yx[0] - box_y) * scale_y)
         kp_x = int((keypoint.yx[1] - box_x) * scale_x)
-        cv2_im = cv2.putText(cv2_im, str(numobject),(kp_x + 1, kp_y + 1), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
+        #cv2_im = cv2.putText(cv2_im, str(numobject),(kp_x + 1, kp_y + 1), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
         xys[label] = (numobject,kp_x, kp_y)
         cv2.circle(cv2_im,(int(kp_x),int(kp_y)),5,(0,255,255),-1)
 
@@ -259,7 +260,7 @@ def main():
                         default=os.path.join(default_model_dir, default_labels))
     parser.add_argument('--top_k', type=int, default=1,
                         help='number of categories with highest score to display')
-    parser.add_argument('--camera_idx', type=str, help='Index of which video source to use. ', default = 1)
+    parser.add_argument('--camera_idx', type=str, help='Index of which video source to use. ', default = 0)
     parser.add_argument('--threshold', type=float, default=0.5,
                         help='classifier score threshold')
     args = parser.parse_args()
@@ -280,11 +281,13 @@ def main():
     #interpreter2.allocate_tensors()
     engine2 = DetectionEngine('../all_models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite')
     labels2 = load_labels('../all_models/coco_labels.txt')
-    cap = cv2.VideoCapture(args.camera_idx)
-    #cap = cv2.VideoCapture('video-example1.mp4')
-    while cap.isOpened():
-    #while cv2.waitKey(1)<0:
+    #cap = cv2.VideoCapture(args.camera_idx)
+    cap = cv2.VideoCapture('../stream_in.mp4')
+    out = cv2.VideoWriter('outpy.mp4',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
+    #while cap.isOpened():
+    while cv2.waitKey(1)<0:
         ret, frame = cap.read()
+        frame = cv2.resize(frame,(640,480))
         if not ret:
             break
         cv2_im = frame
@@ -320,9 +323,7 @@ def main():
         sum_inference_time += inference_time
 
         avg_inference_time = sum_inference_time / n
-        text_line = 'PoseNet: %.1fms (%.2f fps) TrueFPS: %.2f' % (
-            avg_inference_time, 1000 / avg_inference_time, next(fps_counter)
-        )
+        text_line = ('PoseNet: %.1fms (%.2f fps)' % (avg_inference_time, 1000 / avg_inference_time))
 
         shadow_text(cv2_im, 10, 20, text_line)
         numobject = 0
@@ -353,6 +354,7 @@ def main():
                         print('yx1,',keypoint.yx)    
             '''
             pts_sodidi, xys = draw_pose(cv2_im,cv2_sodidi, pose, numobject, src_size)
+            
             #print(pts_sodidi)
             pts_sodidi_arr.append(pts_sodidi)
             pts_xys_arr.append(xys)
@@ -376,35 +378,42 @@ def main():
         #for a in pts_sodidi_arr:
         #    for b in a:
         #        print(b[0])
+        '''###
         if len(v2) == 1:
             a,x1,y1 = v2[0]
             cv2.putText(cv2_sodidi,'OKAY',(int(x1),int(y1)),cv2.FONT_HERSHEY_SIMPLEX,1.0,(255,255,0),2)
-
+        '''
         for i in range(0,len(v2)):
             a,x1,y1 = v2[i]
-            for j in range(1,len(v2)):
+            
+            for j in range(0,len(v2)):
                 if i == j:
                     break
                 b,x2,y2 = v2[j]
                 distance = check_distance(x1,y1,x2,y2)
+                cv2.putText(cv2_sodidi, 'O', (int(x2),int(y2)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0,0), 2)
                 #print('distance',distance)
+                '''###
                 if distance > 200:
                     cv2.circle(cv2_sodidi,(int(x1),int(y1)),5,(0,0,255),-1)
-                    cv2.putText(cv2_sodidi, 'OKAY', (int(x1),int(y1)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0,0), 2)
+                    cv2.putText(cv2_sodidi, 'O', (int(x1),int(y1)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0,0), 2)
                     cv2.circle(cv2_sodidi,(int(x2),int(y2)),5,(0,0,255),-1)
-                    cv2.putText(cv2_sodidi, 'OKAY', (int(x2),int(y2)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0,0), 2)
+                    cv2.putText(cv2_sodidi, 'O', (int(x2),int(y2)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0,0), 2)
                     listwarning.append(i)
                     listwarning.append(j)
                 else:   
                     cv2.circle(cv2_sodidi,(int(x1),int(y1)),5,(0,0,255),-1)
-                    cv2.putText(cv2_sodidi, 'ALERT', (int(x1),int(y1)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0,255), 2)
+                    cv2.putText(cv2_sodidi, 'X', (int(x1),int(y1)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0,255), 2)
                     cv2.circle(cv2_sodidi,(int(x2),int(y2)),5,(255,0,0),-1)
-                    cv2.putText(cv2_sodidi, 'ALERT', (int(x2),int(y2)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+                    cv2.putText(cv2_sodidi, 'X', (int(x2),int(y2)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+                '''
         #print('listwarning',listwarning)
         for a, b in EDGES:
             if a not in xys or b not in xys: continue
             num,ax, ay = xys[a]
             num,bx, by = xys[b]
+            cv2.line(cv2_im,(ax, ay), (bx, by),(0,0,255))
+            '''###
             if num in listwarning or len(listwarning) == 1:
             #print(numobject,a,xys[a],b,xys[b])
                 cv2.line(cv2_im,(ax, ay), (bx, by),(0,0,255))
@@ -412,6 +421,7 @@ def main():
             else:
                 cv2.line(cv2_im,(ax, ay), (bx, by),(255,0,0))
                 #cv2.putText(cv2_im, 'ALERT', (int(ax+ay/2),int(bx+by/2)),cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0,255), 2)
+            '''
         #==============================================================================================    
         #cv2_im = append_objs_to_img(cv2_im, objs, labels)
 
@@ -435,6 +445,8 @@ def main():
         print(posNp)
         #============streamming to server==============
         img = np.hstack((cv2_im, cv2_sodidi))
+        
+        out.write(img)
         #thay frame = img
         encoded, buffer = cv2.imencode('.jpg', img)
         jpg_as_text = base64.b64encode(buffer)
@@ -456,10 +468,12 @@ def append_objs_to_img(cv2_im, objs, labels):
         x0, y0, x1, y1 = int(x0*width), int(y0*height), int(x1*width), int(y1*height)
         percent = int(100 * obj.score)
         label = '{}% {}'.format(percent, labels.get(obj.label_id, obj.label_id))
-        if (labels.get(obj.label_id, obj.label_id)=='person'):
+        #if (labels.get(obj.label_id, obj.label_id)=='person'):
+        '''            
             cv2_im = cv2.rectangle(cv2_im, (x0, y0), (x1, y1), (0, 255, 0), 2)
             cv2_im = cv2.putText(cv2_im, label, (x0, y0+30),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
+        '''
     return cv2_im
 
     '''
