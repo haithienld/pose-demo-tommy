@@ -283,7 +283,7 @@ def main():
     labels2 = load_labels('../all_models/coco_labels.txt')
     #cap = cv2.VideoCapture(args.camera_idx)
     cap = cv2.VideoCapture('../stream_in.mp4')
-    out = cv2.VideoWriter('outpy.mp4',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
+    out = cv2.VideoWriter('../outpy.mp4',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
     #while cap.isOpened():
     while cv2.waitKey(1)<0:
         ret, frame = cap.read()
@@ -445,7 +445,6 @@ def main():
         print(posNp)
         #============streamming to server==============
         img = np.hstack((cv2_im, cv2_sodidi))
-        
         out.write(img)
         #thay frame = img
         encoded, buffer = cv2.imencode('.jpg', img)
