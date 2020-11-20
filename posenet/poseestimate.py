@@ -283,8 +283,7 @@ def main():
     labels2 = load_labels('../all_models/coco_labels.txt')
     #cap = cv2.VideoCapture(args.camera_idx)
     cap = cv2.VideoCapture('../stream_in.mp4')
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('../output.mp4',fourcc, 20.0, (640,480))
+    out = cv2.VideoWriter('outpy.mp4',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
     #while cap.isOpened():
     while cv2.waitKey(1)<0:
         ret, frame = cap.read()
@@ -437,16 +436,18 @@ def main():
                                   top_k=3)
 
         cv2_im = append_objs_to_img(cv2_im, objs, labels2)
-
-        cv2.imshow('frame', cv2_im)
-        cv2.imshow('1', cv2_sodidi)
+        img = np.hstack((cv2_im, cv2_sodidi))
+        #cv2.imshow('frame', cv2_im)
+        #cv2.imshow('1', cv2_sodidi)
+        out.write(img)
         #===========print mouse pos=====================
         cv2.setMouseCallback('frame',onMouse)
         posNp=np.array(posList)
         print(posNp)
         #============streamming to server==============
         img = np.hstack((cv2_im, cv2_sodidi))
-        out.write(img)
+        
+        
         #thay frame = img
         encoded, buffer = cv2.imencode('.jpg', img)
         jpg_as_text = base64.b64encode(buffer)
